@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 CREATE FUNCTION notify_create_or_update() RETURNS trigger AS $$
                     DECLARE
                     BEGIN
-                      PERFORM pg_notify('sync', TG_TABLE_NAME || ',' || TG_OP || ',id,' || NEW.id );
+                      PERFORM pg_notify('sync', txid_current() || ',' || TG_TABLE_NAME || ',' || TG_OP || ',id,' || NEW.id );
                       RETURN new;
                     END;
                 $$ LANGUAGE plpgsql;
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 CREATE FUNCTION notify_delete() RETURNS trigger AS $$
                     DECLARE
                     BEGIN
-                      PERFORM pg_notify('sync', TG_TABLE_NAME || ',' || TG_OP || ',id,' || OLD.id );
+                      PERFORM pg_notify('sync', txid_current() || ',' || TG_TABLE_NAME || ',' || TG_OP || ',id,' || OLD.id );
                       RETURN new;
                     END;
                 $$ LANGUAGE plpgsql;
