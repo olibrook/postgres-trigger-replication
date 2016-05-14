@@ -86,8 +86,11 @@ WSGI_APPLICATION = 'ptr.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(DATA_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'docker',
+        'USER': 'docker',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

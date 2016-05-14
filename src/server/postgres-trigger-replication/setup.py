@@ -8,6 +8,7 @@ setup(
         "django==1.9.1",
         "pytest==2.8.5",
         "pytest-django==2.9.1",
+        "psycopg2==2.6.1",
     ],
     entry_points={
         'console_scripts': [

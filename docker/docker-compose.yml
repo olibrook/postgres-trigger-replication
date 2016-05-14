@@ -2,7 +2,14 @@ version: '2.0'
 services:
   ptr-postgres:
     build: ptr-postgres
+    ports:
+      - "5432:5432"
   ptr-elasticsearch:
     build: ptr-elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
   ptr-mongodb:
     build: ptr-mongo
+    ports:
+      - "27018:27017"
