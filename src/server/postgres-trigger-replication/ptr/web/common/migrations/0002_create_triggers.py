@@ -14,10 +14,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql="""
-                CREATE FUNCTION notify_trigger() RETURNS trigger AS $$
+                CREATE FUNCTION notify_create_or_update() RETURNS trigger AS $$
                     DECLARE
                     BEGIN
-                      PERFORM pg_notify('watchers', TG_TABLE_NAME || ',id,' || NEW.id );
+                      PERFORM pg_notify('sync', TG_TABLE_NAME || ',' || TG_OP || ',id,' || NEW.id );
+                      RETURN new;
+                    END;
+                $$ LANGUAGE plpgsql;
+
+                CREATE FUNCTION notify_delete() RETURNS trigger AS $$
+                    DECLARE
+                    BEGIN
+                      PERFORM pg_notify('sync', TG_TABLE_NAME || ',' || TG_OP || ',id,' || OLD.id );
                       RETURN new;
                     END;
                 $$ LANGUAGE plpgsql;
@@ -25,21 +33,22 @@ class Migration(migrations.Migration):
 
                 CREATE TRIGGER watched_table_insert
                   AFTER INSERT ON common_syncedthing
-                  FOR EACH ROW EXECUTE PROCEDURE notify_trigger();
+                  FOR EACH ROW EXECUTE PROCEDURE notify_create_or_update();
 
                 CREATE TRIGGER watched_table_update
                   AFTER UPDATE ON common_syncedthing
-                  FOR EACH ROW EXECUTE PROCEDURE notify_trigger();
+                  FOR EACH ROW EXECUTE PROCEDURE notify_create_or_update();
 
                 CREATE TRIGGER watched_table_delete
                   AFTER DELETE ON common_syncedthing
-                  FOR EACH ROW EXECUTE PROCEDURE notify_trigger();
+                  FOR EACH ROW EXECUTE PROCEDURE notify_delete();
             """,
             reverse_sql="""
                 DROP TRIGGER watched_table_insert ON common_syncedthing;
                 DROP TRIGGER watched_table_update ON common_syncedthing;
                 DROP TRIGGER watched_table_delete ON common_syncedthing;
-                DROP FUNCTION notify_trigger();
+                DROP FUNCTION notify_delete();
+                DROP FUNCTION notify_create_or_update();
             """
         ),
     ]

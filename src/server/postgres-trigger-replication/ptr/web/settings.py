@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'ptr.common',
+    'ptr.web.common',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -61,7 +61,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'ptr.urls'
+ROOT_URLCONF = 'ptr.web.urls'
 
 TEMPLATES = [
     {
@@ -79,7 +79,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'ptr.wsgi.application'
+WSGI_APPLICATION = 'ptr.web.wsgi.application'
 
 
 # Database

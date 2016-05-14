@@ -9,9 +9,11 @@ setup(
         "pytest==2.8.5",
         "pytest-django==2.9.1",
         "psycopg2==2.6.1",
+        "eventlet",
     ],
     entry_points={
         'console_scripts': [
+            'receiver=ptr.receiver:main'
         ]
     },
 )
