@@ -1,5 +1,4 @@
 import random
-import time
 import string
 
 import django.core.management.base as base
@@ -43,6 +42,4 @@ class Command(base.BaseCommand):
 
             except models.SyncedThing.DoesNotExist as e:
                 print(e)
-
-            time.sleep(0.05)
 

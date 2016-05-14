@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from django.db import migrations
 
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -14,41 +15,51 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql="""
-                CREATE FUNCTION notify_create_or_update() RETURNS trigger AS $$
-                    DECLARE
-                    BEGIN
-                      PERFORM pg_notify('sync', txid_current() || ',' || TG_TABLE_NAME || ',' || TG_OP || ',id,' || NEW.id );
-                      RETURN new;
-                    END;
-                $$ LANGUAGE plpgsql;
+                CREATE OR REPLACE FUNCTION notify_change() RETURNS TRIGGER AS $$
 
-                CREATE FUNCTION notify_delete() RETURNS trigger AS $$
                     DECLARE
+                        data json;
+                        notification json;
+
                     BEGIN
-                      PERFORM pg_notify('sync', txid_current() || ',' || TG_TABLE_NAME || ',' || TG_OP || ',id,' || OLD.id );
-                      RETURN new;
+                        IF (TG_OP = 'DELETE') THEN
+                            data = row_to_json(OLD);
+                        ELSE
+                            data = row_to_json(NEW);
+                        END IF;
+
+                        notification = json_build_object(
+                                          'table',TG_TABLE_NAME,
+                                          'action', TG_OP,
+                                          'data', data);
+
+
+                        PERFORM pg_notify('sync',notification::text);
+
+                        -- Result is ignored since this is an AFTER trigger
+                        RETURN NULL;
                     END;
+
                 $$ LANGUAGE plpgsql;
 
 
                 CREATE TRIGGER watched_table_insert
                   AFTER INSERT ON common_syncedthing
-                  FOR EACH ROW EXECUTE PROCEDURE notify_create_or_update();
+                  FOR EACH ROW EXECUTE PROCEDURE notify_change();
 
                 CREATE TRIGGER watched_table_update
                   AFTER UPDATE ON common_syncedthing
-                  FOR EACH ROW EXECUTE PROCEDURE notify_create_or_update();
+                  FOR EACH ROW EXECUTE PROCEDURE notify_change();
 
                 CREATE TRIGGER watched_table_delete
                   AFTER DELETE ON common_syncedthing
-                  FOR EACH ROW EXECUTE PROCEDURE notify_delete();
+                  FOR EACH ROW EXECUTE PROCEDURE notify_change();
             """,
             reverse_sql="""
                 DROP TRIGGER watched_table_insert ON common_syncedthing;
                 DROP TRIGGER watched_table_update ON common_syncedthing;
                 DROP TRIGGER watched_table_delete ON common_syncedthing;
-                DROP FUNCTION notify_delete();
-                DROP FUNCTION notify_create_or_update();
+                DROP FUNCTION notify_change();
             """
         ),
     ]
