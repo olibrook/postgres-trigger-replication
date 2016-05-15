@@ -46,7 +46,7 @@ def main():
         hubs.trampoline(cnn, read=True)
         cnn.poll()
         while cnn.notifies:
-            message = cnn.notifies.pop()
+            message = cnn.notifies.pop(0)
             message = json.loads(message.payload)
 
             print(message)
