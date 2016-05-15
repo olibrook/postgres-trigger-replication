@@ -1,5 +1,6 @@
 import random
 import string
+import time
 
 import django.core.management.base as base
 
@@ -21,10 +22,10 @@ class Command(base.BaseCommand):
 
     def handle(self, *args, **options):
         while True:
-            op = random.choice(['CREATE', 'UPDATE', 'DELETE'])
+            op = random.choice(['INSERT', 'UPDATE', 'DELETE'])
 
             try:
-                if op == 'CREATE':
+                if op == 'INSERT':
                     models.SyncedThing.objects.create(title=self.random_str())
                 elif op == 'UPDATE':
                     items = models.SyncedThing.objects.order_by('pk')[:1]
@@ -43,3 +44,4 @@ class Command(base.BaseCommand):
             except models.SyncedThing.DoesNotExist as e:
                 print(e)
 
+            time.sleep(0.025)
