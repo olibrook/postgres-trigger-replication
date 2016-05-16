@@ -9,7 +9,7 @@ import pyelasticsearch
 import django.db as db
 import django.conf as conf
 
-import ptr.web.common.models as models
+import ptr_web.common.models as models
 
 es_url = 'http://localhost:9200/'
 
