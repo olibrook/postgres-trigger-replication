@@ -4,6 +4,9 @@ Demonstrates replication of a table in Postgres to Elastic Search using
 Postgres trigger functions, NOTIFY and a process listening for change
 notifications to sync to Elastic.
 
+This might be a simpler alternative to syncing using Django signals and be more
+reliable with respect to transaction rollbacks, etc.
+
 ## Setup
 
 Docker:
